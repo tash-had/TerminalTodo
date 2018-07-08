@@ -9,6 +9,6 @@ Not affiliated with NirvanaHQ.
 - Navigate to it in Terminal
 - Run ```python nirvana_in.py --install```
 - Restart your Terminal
-- Run ```nin --help`` for commands
+- Run ```nin --help``` for commands
 
 **Not tested on Windows**
