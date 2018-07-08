@@ -97,4 +97,8 @@ else:
     elif len(arg) > 2 and arg[0:2] == "--":
         print("Invalid 'nin' command. Type 'nin --help' for a list of commands")
     else:
-        add_to_inbox(arg)
+        task = arg
+        for i in range(2, len(sys.argv)):
+            task += " " 
+            task += sys.argv[i]
+        add_to_inbox(task)
