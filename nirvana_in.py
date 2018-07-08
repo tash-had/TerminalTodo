@@ -13,6 +13,7 @@ commands = {
     "nin --uninstall": "Resets NirvanaIn.py and removes the shell command"
 }
 
+
 def get_shell_profile_path():
     base = os.path.expanduser("~/")
     zshrc = base + ".zshrc"
@@ -21,11 +22,14 @@ def get_shell_profile_path():
     else:
         return base + ".bash_profile"
 
+
 def get_current_path():
     return os.path.dirname(os.path.abspath(__file__) + "/" + FILE_NAME)
 
+
 def get_shell_profile_txt():
     return "alias nin='python " + get_current_path() + "'"
+
 
 def reset():
     try:
@@ -35,15 +39,17 @@ def reset():
     except OSError:
         pass
 
+
 def install_shell_cmd():
     with open(get_shell_profile_path(), "a") as f:
         f.write("\n" + get_shell_profile_txt())
     print("'nin' command has been added to your shell. Restart your shell.")
     exit(0)
 
+
 def uninstall_shell_cmd():
     def _delete_line(file, line):
-        f = open(file,"r+")
+        f = open(file, "r+")
         d = f.readlines()
         f.seek(0)
         for i in d:
@@ -52,7 +58,7 @@ def uninstall_shell_cmd():
         f.truncate()
         f.close()
     _delete_line(get_shell_profile_path(), get_shell_profile_txt())
-    reset() 
+    reset()
     print("NirvanaIn.py uninstalled. Restart your shell.")
 
 
@@ -88,5 +94,7 @@ else:
         install_shell_cmd()
     elif arg == "--uninstall":
         uninstall_shell_cmd()
+    elif len(arg) > 2 and arg[0:2] == "--":
+        print("Invalid 'nin' command. Type 'nin --help' for a list of commands")
     else:
         add_to_inbox(arg)
