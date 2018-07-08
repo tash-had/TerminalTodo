@@ -1,8 +1,6 @@
 # NirvanaIn.py
 Add items to your Nirvana Inbox via Terminal 
 
-Not affiliated with NirvanaHQ. 
-
 ## Usage
 - ```nin Clean room```
 ## Installation (1 minute) 
@@ -14,3 +12,5 @@ Not affiliated with NirvanaHQ.
 - Run ```nin --help``` for commands
 
 **Not tested on Windows**
+
+Not affiliated with NirvanaHQ. 
