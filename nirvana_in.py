@@ -9,7 +9,7 @@ commands = {
     "python nirvana_in.py --install": "Add 'nin' as a shell command",
     "nin --help": "Display a list of all commands",
     "nin INBOX_ITEM": "Adds INBOX_ITEM to your Nirvana Inbox",
-    "nin --reset": "Resets NirvanaIn.py",
+    "nin --reset": "Resets data stored by NirvanaIn.py",
     "nin --uninstall": "Resets NirvanaIn.py and removes the shell command"
 }
 
