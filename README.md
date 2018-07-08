@@ -3,7 +3,9 @@ Add items to your Nirvana Inbox via Terminal
 
 Not affiliated with NirvanaHQ. 
 
-## Steps
+## Usage
+- ```nin Clean room```
+## Installation (1 minute) 
 - Clone this repo
 - Move it to a directory of your choice
 - Navigate to it in Terminal
