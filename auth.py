@@ -16,22 +16,23 @@ def compute_md5_hash(my_string):
 
 
 def get_login_creds():
-    if not os.path.isfile(".creds"):
-        with open(".creds", "w") as f:
+    data = None
+    if not os.path.isfile(CREDS_FILE):
+        with open(CREDS_FILE, "w") as f:
             data = {
                 "u": input("Nirvana E-Mail: "),
                 "p": compute_md5_hash(getpass())
             }
+            json.dump(data, f)
     else:
-        with open(".creds", "r") as f:
+        with open(CREDS_FILE, "r") as f:
             data = json.load(f)
-
     return data
 
 
 def get_auth_token(creds):
-    if os.path.isfile(".authtoken"):
-        with open(".authtoken", "r") as f:
+    if os.path.isfile(AUTHTOKEN_FILE):
+        with open(AUTHTOKEN_FILE, "r") as f:
             data = json.load(f)
             token = data["token"]
             expiry = data["expiry"]
@@ -39,7 +40,7 @@ def get_auth_token(creds):
             if now < int(expiry):
                 return token
 
-    with open(".authtoken", "w+") as f:
+    with open(AUTHTOKEN_FILE, "w+") as f:
         response = make_login_request(creds["u"], creds["p"])
         if response:
             auth = response["results"][0]["auth"]

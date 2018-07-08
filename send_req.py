@@ -35,12 +35,14 @@ def make_add_to_inbox_request(token, task):
         "appversion": "1525880921"
     }
 
-    payload = {
-        "method": "task.save",
-        "id": str(uuid.uuid4()),
-        "name": task,
-        "_name": timestamp
-    }
+    payload = [
+        {
+            "method": "task.save",
+            "id": str(uuid.uuid4()),
+            "name": task,
+            "_name": timestamp
+        }
+    ] 
 
     headers = {
         'Content-Type': "application/json",
@@ -48,5 +50,5 @@ def make_add_to_inbox_request(token, task):
     }
 
     response = requests.request(
-        "POST", url, data=payload, headers=headers, params=querystring)
+        "POST", url, data=json.dumps(payload), headers=headers, params=querystring)
     return json.loads(response.text)

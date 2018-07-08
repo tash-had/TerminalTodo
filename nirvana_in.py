@@ -63,6 +63,7 @@ def add_to_inbox(task):
         results = response["results"][0]
         if "task" not in results:
             print("An error occured.")
+            print(results)
             if "error" in results:
                 json.dumps(results, indent=4, sort_keys=True)
     except Exception as e:
