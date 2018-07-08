@@ -4,6 +4,7 @@ Add items to your Nirvana Inbox via Terminal
 ## Usage
 - ```nin Clean room```
 ## Installation (1 minute) 
+- Make sure you have ```requests``` installed. To install, run ```pip install requests```
 - Clone this repo
 - Move it to a directory of your choice
 - Navigate to it in Terminal
