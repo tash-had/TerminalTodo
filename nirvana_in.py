@@ -62,10 +62,10 @@ def uninstall_shell_cmd():
     print("NirvanaIn.py uninstalled. Restart your shell.")
 
 
-def add_to_inbox(task):
+def add_to_inbox(task, note):
     try:
         token = get_auth_token(get_login_creds())
-        response = make_add_to_inbox_request(token, task)
+        response = make_add_to_inbox_request(token, task, note)
         results = response["results"][0]
         if "task" not in results:
             print("An error occured.")
@@ -98,7 +98,16 @@ else:
         print("Invalid 'nin' command. Type 'nin --help' for a list of commands")
     else:
         task = arg
+        note = ""
+        record_as_note = False
         for i in range(2, len(sys.argv)):
-            task += " " 
-            task += sys.argv[i]
-        add_to_inbox(task)
+            word = sys.argv[i]
+            if word == "//":
+                record_as_note = True
+            elif record_as_note:
+                note += " " 
+                note += sys.argv[i]
+            else:
+                task += " "
+                task += sys.argv[i]
+        add_to_inbox(task, note)

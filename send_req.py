@@ -23,7 +23,7 @@ def make_login_request(u, p):
     return json.loads(response.text)
 
 
-def make_add_to_inbox_request(token, task):
+def make_add_to_inbox_request(token, task, note):
     url = "https://focus.nirvanahq.com/api/"
     timestamp = str(int(time.time()))
     querystring = {
@@ -40,7 +40,9 @@ def make_add_to_inbox_request(token, task):
             "method": "task.save",
             "id": str(uuid.uuid4()),
             "name": task,
-            "_name": timestamp
+            "_name": timestamp,
+            "note": note, 
+            "_note": timestamp
         }
     ] 
 
