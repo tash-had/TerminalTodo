@@ -107,8 +107,8 @@ else:
                 record_as_note = True
             elif record_as_note:
                 note += " " 
-                note += sys.argv[i]
+                note += word
             else:
                 task += " "
-                task += sys.argv[i]
+                task += word
         add_to_inbox(task, note)
