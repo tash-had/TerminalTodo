@@ -1,9 +1,11 @@
 # NirvanaIn.py
 Add items to your Nirvana Inbox via Terminal 
 
-Not affiliated with NirvanaHQ. 
-
-## Steps
+## Usage
+- ```nin Clean room```
+- For long entries: ```nin "pick courses for next semester and schedule time to enroll"```
+## Installation (1 minute) 
+- Make sure you have ```requests``` installed. To install, run ```pip install requests```
 - Clone this repo
 - Move it to a directory of your choice
 - Navigate to it in Terminal
@@ -12,3 +14,5 @@ Not affiliated with NirvanaHQ.
 - Run ```nin --help``` for commands
 
 **Not tested on Windows**
+
+Not affiliated with NirvanaHQ. 
