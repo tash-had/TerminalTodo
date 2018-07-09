@@ -3,8 +3,8 @@ Add items to your Nirvana Inbox via Terminal
 
 ## Usage
 - ```nin Clean room```
-- For long entries: ```nin "pick courses for next semester and schedule time to enroll"```
 - To add notes: ```nin mytask // note for mytask```
+- For **really** long entries, encapsulate your item in quotes if it doesn't work. ```nin "REALLY LONG ENTRY"```
 
 ## Installation (1 minute) 
 - Make sure you have ```requests``` installed. To install, run ```pip install requests```
