@@ -5,9 +5,9 @@ import os.path
 from getpass import getpass
 import time
 
-AUTHTOKEN_FILE = ".authtoken"
-CREDS_FILE = ".creds"
-
+FILE_PATH = os.path.dirname(os.path.realpath(__file__))
+AUTHTOKEN_FILE = FILE_PATH + "/" + ".authtoken"
+CREDS_FILE = FILE_PATH + "/" + ".creds"
 
 def compute_md5_hash(my_string):
     m = hashlib.md5()
