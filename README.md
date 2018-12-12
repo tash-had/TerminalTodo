@@ -1,3 +1,4 @@
+![Alt text](https://github.com/tash-had/NirvanaIn.py/blob/master/logo.png?raw=true)
 # NirvanaIn.py
 Add items to your Nirvana Inbox via Terminal 
 
