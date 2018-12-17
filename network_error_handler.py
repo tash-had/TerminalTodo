@@ -58,7 +58,8 @@ def submit_offline_store(inbox_service, forced=False):
             exit(1)
 
 def remove_offline_store():
-    os.remove(OFFLINE_STORE_FILE)
+    if os.path.isfile(OFFLINE_STORE_FILE):
+        os.remove(OFFLINE_STORE_FILE)
 
 def store_offline_if_no_network(task, note):
     if not has_network_connection():

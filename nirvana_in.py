@@ -93,6 +93,7 @@ class NirvanaInService:
             f.close()
         _delete_line(self.get_shell_profile_path(), self.get_shell_profile_txt())
         self.reset()
+        remove_offline_store()
         print("NirvanaIn.py uninstalled. Restart your shell.")
 
 
