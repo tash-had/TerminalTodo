@@ -50,7 +50,7 @@ def submit_offline_store(inbox_service, forced=False):
                 if added == False:
                     no_network_err()
                     exit(1)
-        print("Submitted", store_lst_len, "items from offline store.")
+        print("OFFLINE SUBMISSION SENT: Submitted", store_lst_len, "items from offline store.")
         os.remove(OFFLINE_STORE_FILE)
     else:
         if forced:
