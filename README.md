@@ -18,3 +18,5 @@ Add items to your Nirvana Inbox via Terminal
 **Not tested on Windows**
 
 Not affiliated with NirvanaHQ. 
+
+![Logo](https://github.com/tash-had/NirvanaIn.py/blob/master/logo.png?raw=true)
