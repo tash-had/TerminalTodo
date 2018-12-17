@@ -2,6 +2,7 @@ import time
 import requests
 import uuid
 import json
+from network_error_handler import has_network_connection
 
 
 def make_login_request(u, p):
@@ -18,9 +19,12 @@ def make_login_request(u, p):
         'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
         'Cache-Control': "no-cache"
     }
-    response = requests.request(
-        "POST", url, data=payload, headers=headers, params=querystring)
-    return json.loads(response.text)
+    if has_network_connection():
+        response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+        return json.loads(response.text)
+    else:
+        print("No network connection found")
+        exit(1)
 
 
 def make_add_to_inbox_request(token, task, note):
@@ -50,7 +54,6 @@ def make_add_to_inbox_request(token, task, note):
         'Content-Type': "application/json",
         'Cache-Control': "no-cache"
     }
-
     response = requests.request(
         "POST", url, data=json.dumps(payload), headers=headers, params=querystring)
     return json.loads(response.text)
