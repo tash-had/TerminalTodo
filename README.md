@@ -2,7 +2,7 @@
 Add items to your Nirvana Inbox via Terminal 
 
 ## June 2, 2020 Update
-A recent update in the Nirvana API has ended support for the endpoint I was using to fetch the access token. My workaround uses Nirvana's [add tasks via email](https://help.nirvanahq.com/category/getting-more-from-nirvana/add-your-items/#create-inbox-items-via-email) feature. This adds a couple more steps to installation. 
+A recent update in the Nirvana API makes it no longer possible for me to retrieve an access token. I've written a workaround which uses Nirvana's [add tasks via email](https://help.nirvanahq.com/category/getting-more-from-nirvana/add-your-items/#create-inbox-items-via-email) feature to add to your inbox. This adds a couple more steps to installation. 
 
 ## Usage
 - ```nin Clean room```
