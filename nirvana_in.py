@@ -1,8 +1,12 @@
 import sys
 import os
 import shutil
-from send_req import *
-from auth import get_login_creds, get_auth_token, AUTHTOKEN_FILE, CREDS_FILE
+import json
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
+from config import get_config, remove_config_file
 from network_error_handler import remove_offline_store, store_offline_if_no_network, submit_offline_store
 
 FILE_NAME = "nirvana_in.py"
@@ -22,24 +26,34 @@ class InboxService:
         self.nin_service = nin_service
 
     def add_to_inbox(self, task, note, suppress_error=False, from_offline_store=False):
-        try:
+        config = get_config()
+        api_key, sender_email, inbox_addr = config["api_key"], config["sender_email"], config["inbox_addr"]
+    
+        message = Mail(
+            from_email=sender_email,
+            to_emails=inbox_addr,
+            subject=task,
+            plain_text_content=note)
+
+        if not from_offline_store:
             store_offline_if_no_network(task, note)
-            token = get_auth_token(get_login_creds())
-            response = make_add_to_inbox_request(token, task, note)
-            results = response["results"][0]
-            if "task" not in results:
+
+        try:
+            sg = SendGridAPIClient(api_key)
+            response = sg.send(message)
+
+            if response is None or str(response.status_code)[0] != "2":
                 print("An error occured.")
-                print(results)
-                if "error" in results:
-                    json.dumps(results, indent=4, sort_keys=True)
+                print("STATUS CODE", response.status_code)
+                print("BODY", response.body)
+                print("HEADERS", response.headers)
                 return False
             elif not from_offline_store:
                     submit_offline_store(self)
             return True
         except Exception as e:
             if not suppress_error:
-                print("An error occurred")
-                self.nin_service.reset()
+                print("An error occurred. If the issue persists, try nin --reset")
                 show_err = input("See error log? y/n ")
                 if (show_err == "y"):
                     print(e)
@@ -48,57 +62,62 @@ class InboxService:
 class NirvanaInService:
     def get_shell_profile_path(self):
         base = os.path.expanduser("~/")
-        zshrc = base + ".zshrc"
-        if os.path.isfile(zshrc):
-            return zshrc
-        else:
-            return base + ".bash_profile"
+        shell_config = ""
 
+        custom_shell = input("Are you using a shell other than bash or zsh as your default shell? y/n/idk ")
+        is_custom_shell = custom_shell == "y"
+
+        if is_custom_shell:
+            print("Enter the full path to the config file of your default shell (ie. '.zshrc', '.bash_profile'")
+            shell_config = input("Shell config file path: ")
+        else:
+            shell_config = base + ".zshrc"
+            # if zshrc doesn't exist, default to bash_profile
+            if not os.path.isfile(shell_config):
+                shell_config = base + ".bash_profile"
+    
+        return shell_config
 
     def get_current_path(self):
         return os.path.dirname(os.path.abspath(__file__) + "/" + FILE_NAME)
 
-
     def get_shell_profile_txt(self):
         return "alias nin='python " + self.get_current_path() + "'"
 
-
-    def reset(self):
+    def reset(self, force=False):
         try:
-            if os.path.isfile(AUTHTOKEN_FILE):
-                os.remove(AUTHTOKEN_FILE)
-            if os.path.isfile(CREDS_FILE):
-                os.remove(CREDS_FILE)
+            continue_reset = "y"
+            if not force:
+                continue_reset = input("WARNING: Resetting will remove your sendgrid api key, sendgrid sender email and nirvana inbox address from storage. Continue? y/n ")
+            if continue_reset == "y":
+                remove_config_file()
             shutil.rmtree("__pycache__")
         except OSError:
             pass
 
-
     def install_shell_cmd(self):
         with open(self.get_shell_profile_path(), "a") as f:
             f.write("\n" + self.get_shell_profile_txt())
-        print("'nin' command has been added to your shell. Restart your shell.")
-        exit(0)
-
+        print("'nin' command has been added to your shell.")
 
     def uninstall_shell_cmd(self):
-        def _delete_line(file, line):
+        def _delete_line(file, prefix):
             f = open(file, "r+")
             d = f.readlines()
             f.seek(0)
+
             for i in d:
-                if i != line:
+                if not i.startswith(prefix):
                     f.write(i)
             f.truncate()
             f.close()
-        _delete_line(self.get_shell_profile_path(), self.get_shell_profile_txt())
-        self.reset()
+        _delete_line(self.get_shell_profile_path(), "alias nin")
+        self.reset(force=True)
         remove_offline_store()
         print("NirvanaIn.py uninstalled. Restart your shell.")
 
-
 if (len(sys.argv) <= 1):
-    print("USAGE: nin INBOX_ITEM")
+    print("usage: nin INBOX_ITEM")
     print("Use 'nin --help' for a list of commands.")
     exit(1)
 else:
@@ -112,6 +131,11 @@ else:
         nin_service.reset()
     elif arg == "--install":
         nin_service.install_shell_cmd()
+        print("Starting setup...")
+        # Call get_sendgrid_config to trigger get_config in config.py (which requests user input for data)
+        get_config()
+        print("Install completed. Restart your shell.")
+        exit(0)
     elif arg == "--uninstall":
         nin_service.uninstall_shell_cmd()
     elif arg == "--refresh":
