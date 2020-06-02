@@ -61,8 +61,9 @@ def remove_offline_store():
     if os.path.isfile(OFFLINE_STORE_FILE):
         os.remove(OFFLINE_STORE_FILE)
 
-def store_offline_if_no_network(task, note):
+def store_offline_if_no_network(task, note, already_in_store=False):
     if not has_network_connection():
-        store_for_later(task, note)
+        if not already_in_store:
+            store_for_later(task, note)
         no_network_err()
         exit(1)

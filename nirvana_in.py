@@ -6,10 +6,9 @@ import json
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from config import get_config, remove_config_file
+from config import get_config, create_config_file, remove_config_file, get_shell_profile_path, config_file_exists
 from network_error_handler import remove_offline_store, store_offline_if_no_network, submit_offline_store
 
-FILE_NAME = "nirvana_in.py"
 
 commands = {
     "python nirvana_in.py --install": "Add 'nin' as a shell command",
@@ -21,6 +20,8 @@ commands = {
     "nin --uninstall": "Resets NirvanaIn.py and removes the shell command"
 }
 
+FILE_NAME = "nirvana_in.py"
+
 class InboxService:
     def __init__(self, nin_service):
         self.nin_service = nin_service
@@ -28,15 +29,21 @@ class InboxService:
     def add_to_inbox(self, task, note, suppress_error=False, from_offline_store=False):
         config = get_config()
         api_key, sender_email, inbox_addr = config["api_key"], config["sender_email"], config["inbox_addr"]
-    
+
+        # sendgrid won't send emails with no content. if note is empty, make it a single space.
+        note = " " if (note is None or len(note) == 0) else note
         message = Mail(
             from_email=sender_email,
             to_emails=inbox_addr,
             subject=task,
             plain_text_content=note)
-
+        
+        # Terminate if no network connection (and keep task/note in offline store if it isn't already there)
+        store_offline_if_no_network(task, note, from_offline_store)
+        
         if not from_offline_store:
-            store_offline_if_no_network(task, note)
+            # If this submission is not from the offline store, submit the items remaining in our offline store.
+            submit_offline_store(self)
 
         try:
             sg = SendGridAPIClient(api_key)
@@ -48,8 +55,7 @@ class InboxService:
                 print("BODY", response.body)
                 print("HEADERS", response.headers)
                 return False
-            elif not from_offline_store:
-                    submit_offline_store(self)
+    
             return True
         except Exception as e:
             if not suppress_error:
@@ -60,24 +66,6 @@ class InboxService:
             return False
 
 class NirvanaInService:
-    def get_shell_profile_path(self):
-        base = os.path.expanduser("~/")
-        shell_config = ""
-
-        custom_shell = input("Are you using a shell other than bash or zsh as your default shell? y/n/idk ")
-        is_custom_shell = custom_shell == "y"
-
-        if is_custom_shell:
-            print("Enter the full path to the config file of your default shell (ie. '.zshrc', '.bash_profile'")
-            shell_config = input("Shell config file path: ")
-        else:
-            shell_config = base + ".zshrc"
-            # if zshrc doesn't exist, default to bash_profile
-            if not os.path.isfile(shell_config):
-                shell_config = base + ".bash_profile"
-    
-        return shell_config
-
     def get_current_path(self):
         return os.path.dirname(os.path.abspath(__file__) + "/" + FILE_NAME)
 
@@ -96,11 +84,13 @@ class NirvanaInService:
             pass
 
     def install_shell_cmd(self):
-        with open(self.get_shell_profile_path(), "a") as f:
+        shell_profile_path = get_shell_profile_path()
+
+        with open(shell_profile_path, "a") as f:
             f.write("\n" + self.get_shell_profile_txt())
         print("'nin' command has been added to your shell.")
 
-    def uninstall_shell_cmd(self):
+    def uninstall_shell_cmd(self, uninstalled_msg=True):
         def _delete_line(file, prefix):
             f = open(file, "r+")
             d = f.readlines()
@@ -111,10 +101,17 @@ class NirvanaInService:
                     f.write(i)
             f.truncate()
             f.close()
-        _delete_line(self.get_shell_profile_path(), "alias nin")
-        self.reset(force=True)
+        
+        if config_file_exists():
+            # if the config file doesn't exist, calling get_shell_profile_path will trigger the setup process.
+            # don't wanna go thru a setup during unintallation
+            # so we'll just remove the shell command during installation.
+            _delete_line(get_shell_profile_path(), "alias nin")
+            self.reset(force=True)
         remove_offline_store()
-        print("NirvanaIn.py uninstalled. Restart your shell.")
+
+        if uninstalled_msg:
+            print("NirvanaIn.py uninstalled. Restart your shell.")
 
 if (len(sys.argv) <= 1):
     print("usage: nin INBOX_ITEM")
@@ -130,10 +127,11 @@ else:
     elif arg == "--reset":
         nin_service.reset()
     elif arg == "--install":
-        nin_service.install_shell_cmd()
+        # uninstall if it already exists
+        nin_service.uninstall_shell_cmd(uninstalled_msg=False)
         print("Starting setup...")
-        # Call get_sendgrid_config to trigger get_config in config.py (which requests user input for data)
-        get_config()
+        create_config_file()
+        nin_service.install_shell_cmd()
         print("Install completed. Restart your shell.")
         exit(0)
     elif arg == "--uninstall":
