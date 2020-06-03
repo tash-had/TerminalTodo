@@ -25,9 +25,7 @@ A recent update in the Nirvana API makes it no longer possible for me to retriev
 - Move it to a directory of your choice
 - Navigate to it in Terminal
 - Run ```python nirvana_in.py --install```
-- Restart your Terminal
 - Run ```nin --help``` for commands
-- When you run `nin mytask` for the first time, you will be asked for your SendGrid API Key and your Nirvana Inbox Address (which we obtained in earlier steps) 
 
 **Not tested on Windows**
 
