@@ -1,8 +1,10 @@
 # NirvanaIn.py
 Add items to your Nirvana Inbox via Terminal 
 
+<img src="https://github.com/tash-had/NirvanaIn.py/blob/master/logo.png" width="200" height="200">
+
 ## June 2, 2020 Update
-A recent update in the Nirvana API has ended support for the endpoint I was using to fetch the access token. My workaround uses Nirvana's [add tasks via email](https://help.nirvanahq.com/category/getting-more-from-nirvana/add-your-items/#create-inbox-items-via-email) feature. This adds a couple more steps to installation. 
+A recent update in the Nirvana API makes it no longer possible for me to retrieve an access token. I've written a workaround which uses Nirvana's [add tasks via email](https://help.nirvanahq.com/category/getting-more-from-nirvana/add-your-items/#create-inbox-items-via-email) feature to add to your inbox. This adds a couple more steps to installation. 
 
 ## Usage
 - ```nin Clean room```
@@ -23,12 +25,8 @@ A recent update in the Nirvana API has ended support for the endpoint I was usin
 - Move it to a directory of your choice
 - Navigate to it in Terminal
 - Run ```python nirvana_in.py --install```
-- Restart your Terminal
 - Run ```nin --help``` for commands
-- When you run `nin mytask` for the first time, you will be asked for your SendGrid API Key and your Nirvana Inbox Address (which we obtained in earlier steps) 
 
 **Not tested on Windows**
 
 Not affiliated with NirvanaHQ. 
-
-![Logo](https://github.com/tash-had/NirvanaIn.py/blob/master/logo.png?raw=true)
