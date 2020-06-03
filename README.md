@@ -1,6 +1,8 @@
 # NirvanaIn.py
 Add items to your Nirvana Inbox via Terminal 
 
+<div style="text-align:center"><img src="https://github.com/tash-had/NirvanaIn.py/blob/master/logo.png" width="200" height="200"></div>
+
 ## June 2, 2020 Update
 A recent update in the Nirvana API makes it no longer possible for me to retrieve an access token. I've written a workaround which uses Nirvana's [add tasks via email](https://help.nirvanahq.com/category/getting-more-from-nirvana/add-your-items/#create-inbox-items-via-email) feature to add to your inbox. This adds a couple more steps to installation. 
 
@@ -30,5 +32,3 @@ A recent update in the Nirvana API makes it no longer possible for me to retriev
 **Not tested on Windows**
 
 Not affiliated with NirvanaHQ. 
-
-![Logo](https://github.com/tash-had/NirvanaIn.py/blob/master/logo.png?raw=true)
