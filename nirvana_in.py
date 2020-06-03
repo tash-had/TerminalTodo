@@ -6,9 +6,8 @@ import json
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from config import get_config, create_config_file, remove_config_file, get_shell_profile_path, config_file_exists
+from config import get_config, create_config_file, remove_config_file, get_shell_profile_path, config_file_exists, FILE_PATH
 from network_error_handler import remove_offline_store, store_offline_if_no_network, submit_offline_store
-
 
 commands = {
     "python nirvana_in.py --install": "Add 'nin' as a shell command",
@@ -21,6 +20,7 @@ commands = {
 }
 
 FILE_NAME = "nirvana_in.py"
+DATA_FILE = FILE_PATH + "/" + ".data"
 
 class InboxService:
     def __init__(self, nin_service):
@@ -55,6 +55,8 @@ class InboxService:
                 print("BODY", response.body)
                 print("HEADERS", response.headers)
                 return False
+            else:
+                self.nin_service.increment_submission_count()
     
             return True
         except Exception as e:
@@ -74,11 +76,8 @@ class NirvanaInService:
 
     def reset(self, force=False):
         try:
-            continue_reset = "y"
-            if not force:
-                continue_reset = input("WARNING: Resetting will remove your sendgrid api key, sendgrid sender email and nirvana inbox address from storage. Continue? y/n ")
-            if continue_reset == "y":
-                remove_config_file()
+            remove_config_file(force)
+            self.remove_data_file()
             shutil.rmtree("__pycache__")
         except OSError:
             pass
@@ -113,6 +112,31 @@ class NirvanaInService:
         if uninstalled_msg:
             print("NirvanaIn.py uninstalled. Restart your shell.")
 
+    def increment_submission_count(self):
+        data = {
+            "submission_count": 1
+        }
+        if not os.path.isfile(DATA_FILE):
+            with open(DATA_FILE, "w") as f:
+                json.dump(data, f)
+                f.close()
+        else:
+            with open(DATA_FILE, "r+") as f:
+                data_obj = json.load(f)
+                data_obj["submission_count"] += 1
+                f.seek(0)
+                f.truncate()
+                json.dump(data_obj, f)
+                f.close()
+   
+    def remove_data_file(self, force=False):
+        msg = "WARNING: Continuing will remove data file at " + DATA_FILE + ". Continue? y/n "
+        continue_reset = "y"
+        if not force:
+            continue_reset = input(msg)
+        if continue_reset == "y" and os.path.isfile(DATA_FILE):
+            os.remove(DATA_FILE)
+
 if (len(sys.argv) <= 1):
     print("usage: nin INBOX_ITEM")
     print("Use 'nin --help' for a list of commands.")
@@ -135,7 +159,9 @@ else:
         print("Install completed. Restart your shell.")
         exit(0)
     elif arg == "--uninstall":
-        nin_service.uninstall_shell_cmd()
+        confirm = input("This will remove your data file, api keys, offline store and all other data. Continue? y/n ")
+        if confirm == "y":
+            nin_service.uninstall_shell_cmd()
     elif arg == "--refresh":
         submit_offline_store(inbox_service, True)
     elif len(arg) > 2 and arg[0:2] == "--":

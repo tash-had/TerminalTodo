@@ -1,7 +1,7 @@
 import urllib
 import os, json
+from config import FILE_PATH
 
-FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 OFFLINE_STORE_FILE = FILE_PATH + "/" + ".offline_store"
 
 def no_network_err():

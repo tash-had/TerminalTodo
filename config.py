@@ -56,6 +56,9 @@ def get_shell_profile_path(check_config=True):
 
     return shell_config
 
-def remove_config_file():
-    if os.path.isfile(CONFIG_FILE):
+def remove_config_file(force=False):
+    continue_reset = "y"
+    if not force:
+        continue_reset = input("WARNING: Resetting will remove your sendgrid api key, sendgrid sender email and nirvana inbox address from storage. Continue? y/n ")
+    if continue_reset == "y" and os.path.isfile(CONFIG_FILE):
         os.remove(CONFIG_FILE)
