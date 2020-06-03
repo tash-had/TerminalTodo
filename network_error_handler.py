@@ -4,9 +4,10 @@ from config import FILE_PATH
 
 OFFLINE_STORE_FILE = FILE_PATH + "/" + ".offline_store"
 
-def no_network_err():
-    print("No network connection detected. Will retry on your next 'nin'. To force retry, type 'nin --refresh'")
-    exit(0)
+ERR_MSG_SUFFIX = "Will retry on your next 'nin'. To force retry, type 'nin --refresh'. If issue persists, try 'nin --reset'."
+NETWORK_CONN_ERR_MSG = "No network connection detected. " + ERR_MSG_SUFFIX
+HTTP_REQ_ERR_MSG = "An error has occured with the HTTP request. " + ERR_MSG_SUFFIX
+GENERAL_ERR_MSG = "An error has occured. " + ERR_MSG_SUFFIX
 
 def has_network_connection(host="http://google.com"):
     try:
@@ -46,10 +47,7 @@ def submit_offline_store(inbox_service, forced=False):
             offline_store_lst = json.load(f)["store"]
             store_lst_len = len(offline_store_lst)
             for nin in offline_store_lst:
-                added = inbox_service.add_to_inbox(nin["task"], nin["note"], True, True)
-                if added == False:
-                    no_network_err()
-                    exit(1)
+                inbox_service.add_to_inbox(nin["task"], nin["note"], True)
         print("OFFLINE SUBMISSION SENT: Submitted", store_lst_len, "items from offline store.")
         os.remove(OFFLINE_STORE_FILE)
     else:
@@ -61,9 +59,21 @@ def remove_offline_store():
     if os.path.isfile(OFFLINE_STORE_FILE):
         os.remove(OFFLINE_STORE_FILE)
 
-def store_offline_if_no_network(task, note, already_in_store=False):
-    if not has_network_connection():
-        if not already_in_store:
+def handle_err(task, note, response_status=None, save_offline=True, force=False):
+    terminate = False
+    
+    if force:
+        print(GENERAL_ERR_MSG)
+        terminate = True
+    elif response_status is not None:
+        if str(response_status)[0] != "2":
+            print(HTTP_REQ_ERR_MSG)
+            terminate = True
+    elif not has_network_connection():
+        print(NETWORK_CONN_ERR_MSG)
+        terminate = True
+    
+    if terminate:
+        if save_offline:
             store_for_later(task, note)
-        no_network_err()
         exit(1)

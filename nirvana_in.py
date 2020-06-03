@@ -7,7 +7,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 from config import get_config, create_config_file, remove_config_file, get_shell_profile_path, config_file_exists, FILE_PATH
-from network_error_handler import remove_offline_store, store_offline_if_no_network, submit_offline_store
+from network_error_handler import remove_offline_store, submit_offline_store, handle_err
 
 commands = {
     "python nirvana_in.py --install": "Add 'nin' as a shell command",
@@ -26,9 +26,10 @@ class InboxService:
     def __init__(self, nin_service):
         self.nin_service = nin_service
 
-    def add_to_inbox(self, task, note, suppress_error=False, from_offline_store=False):
+    def add_to_inbox(self, task, note, from_offline_store=False):
         config = get_config()
         api_key, sender_email, inbox_addr = config["api_key"], config["sender_email"], config["inbox_addr"]
+        save_on_err = not from_offline_store # we only want to sae in offline store if it is not already in there
 
         # sendgrid won't send emails with no content. if note is empty, make it a single space.
         note = " " if (note is None or len(note) == 0) else note
@@ -39,33 +40,21 @@ class InboxService:
             plain_text_content=note)
         
         # Terminate if no network connection (and keep task/note in offline store if it isn't already there)
-        store_offline_if_no_network(task, note, from_offline_store)
+        handle_err(task, note, save_offline=save_on_err)
         
+        try:
+            sg = SendGridAPIClient(api_key)
+            response = sg.send(message)
+            handle_err(task, note, response.status_code, save_offline=save_on_err) # will terminate if response code is success
+            self.nin_service.increment_submission_count()
+        except Exception as e:
+            print(e)
+            handle_err(task, note, save_offline=save_on_err, force=True)
+            
         if not from_offline_store:
             # If this submission is not from the offline store, submit the items remaining in our offline store.
             submit_offline_store(self)
 
-        try:
-            sg = SendGridAPIClient(api_key)
-            response = sg.send(message)
-
-            if response is None or str(response.status_code)[0] != "2":
-                print("An error occured.")
-                print("STATUS CODE", response.status_code)
-                print("BODY", response.body)
-                print("HEADERS", response.headers)
-                return False
-            else:
-                self.nin_service.increment_submission_count()
-    
-            return True
-        except Exception as e:
-            if not suppress_error:
-                print("An error occurred. If the issue persists, try nin --reset")
-                show_err = input("See error log? y/n ")
-                if (show_err == "y"):
-                    print(e)
-            return False
 
 class NirvanaInService:
     def get_current_path(self):
