@@ -61,7 +61,7 @@ class NirvanaInService:
         return os.path.dirname(os.path.abspath(__file__) + "/" + FILE_NAME)
 
     def get_shell_profile_txt(self):
-        return "alias nin='python " + self.get_current_path() + "'"
+        return "alias nin='" + sys.executable + " " + self.get_current_path() + "'"
 
     def reset(self, force=False):
         try:
