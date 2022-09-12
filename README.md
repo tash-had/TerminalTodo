@@ -1,5 +1,6 @@
 # NirvanaIn.py
-Add items to your Nirvana Inbox via Terminal 
+Add items to your To-do list app via Terminal 
+Most big todo apps today allow for you to add an item to your task list via e-mail. This is a script that leverages that e-mail functionality, so that you can add todo list items from the command line. This helps to add tasks faster, without a context switch. 
 
 <img src="https://github.com/tash-had/NirvanaIn.py/blob/master/logo.png" width="200" height="200">
 
